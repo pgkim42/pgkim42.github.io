@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>noname log</title>
-    <link>http://localhost:1313/</link>
-    <description>Recent content on noname log</description>
+    <title>Supavisor on noname log</title>
+    <link>http://localhost:1313/tags/supavisor/</link>
+    <description>Recent content in Supavisor on noname log</description>
     <generator>Hugo</generator>
     <language>ko-kr</language>
     <lastBuildDate>Sun, 18 Jan 2026 18:13:27 +0900</lastBuildDate>
-    <atom:link href="http://localhost:1313/index.xml" rel="self" type="application/rss+xml" />
+    <atom:link href="http://localhost:1313/tags/supavisor/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Supabase Self-hosting 구조 분석</title>
       <link>http://localhost:1313/posts/001_20260118/</link>

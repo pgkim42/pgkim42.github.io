@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Posts on noname log</title>
     <link>http://localhost:1313/posts/</link>
     <description>Recent content in Posts on noname log</description>
-    <generator>Hugo -- 0.154.5</generator>
+    <generator>Hugo</generator>
     <language>ko-kr</language>
-    <lastBuildDate>Sun, 18 Jan 2026 16:46:23 +0900</lastBuildDate>
+    <lastBuildDate>Sun, 18 Jan 2026 18:13:27 +0900</lastBuildDate>
     <atom:link href="http://localhost:1313/posts/index.xml" rel="self" type="application/rss+xml" />
     <item>
-      <title>First Post</title>
-      <link>http://localhost:1313/posts/first-post/</link>
-      <pubDate>Sun, 18 Jan 2026 16:46:23 +0900</pubDate>
-      <guid>http://localhost:1313/posts/first-post/</guid>
-      <description></description>
+      <title>Supabase Self-hosting 구조 분석</title>
+      <link>http://localhost:1313/posts/001_20260118/</link>
+      <pubDate>Sun, 18 Jan 2026 18:13:27 +0900</pubDate>
+      <guid>http://localhost:1313/posts/001_20260118/</guid>
+      <description>&lt;h2 id=&#34;배경&#34;&gt;배경&lt;/h2&gt;&#xA;&lt;p&gt;“백엔드 프레임워크 없이도 Supabase만으로 어디까지 가능한가?”가 궁금해서 Self-hosting(Docker Compose) 환경을 직접 올려봤다.&#xA;인증, REST API, 실시간 구독 같은 백엔드의 전형적인 기능이 &lt;strong&gt;Postgres + 몇 개의 마이크로서비스 조합&lt;/strong&gt;으로 어떻게 성립하는지 구조를 중심으로 정리한다.&lt;/p&gt;&#xA;&lt;p&gt;본 글은 &lt;strong&gt;Self-hosting with Docker 구성&lt;/strong&gt;을 기준으로 작성했다(로컬/서버에 Docker Compose로 올리는 형태).&lt;/p&gt;&#xA;&lt;hr&gt;&#xA;&lt;h2 id=&#34;한-장으로-보는-아키텍처&#34;&gt;한 장으로 보는 아키텍처&lt;/h2&gt;&#xA;&lt;p&gt;Self-hosting 구성을 보면 역할이 비교적 명확하다.&lt;/p&gt;&#xA;&lt;ul&gt;&#xA;&lt;li&gt;&lt;strong&gt;API Gateway (Kong)&lt;/strong&gt;: 모든 요청의 진입점&lt;/li&gt;&#xA;&lt;li&gt;&lt;strong&gt;Data API (PostgREST)&lt;/strong&gt;: Postgres를 REST API로 노출&lt;/li&gt;&#xA;&lt;li&gt;&lt;strong&gt;Auth (GoTrue)&lt;/strong&gt;: 회원/세션/JWT 발급&lt;/li&gt;&#xA;&lt;li&gt;&lt;strong&gt;Realtime&lt;/strong&gt;: WebSocket 기반 실시간 기능(변경 구독 + Broadcast/Presence)&lt;/li&gt;&#xA;&lt;li&gt;&lt;strong&gt;Storage&lt;/strong&gt;: 파일 업로드/다운로드 API + 권한/메타데이터는 Postgres&lt;/li&gt;&#xA;&lt;li&gt;&lt;strong&gt;PostgreSQL&lt;/strong&gt;: 시스템의 상태(state) 대부분을 보관하고, RLS로 권한을 최종 집행&lt;/li&gt;&#xA;&lt;li&gt;&lt;strong&gt;Connection Pooler (Supavisor)&lt;/strong&gt;: Self-host 스택에서 기본 제공되는 풀러(외부 연결/확장성 측면)&lt;/li&gt;&#xA;&lt;/ul&gt;&#xA;&lt;hr&gt;&#xA;&lt;h2 id=&#34;컴포넌트별-역할&#34;&gt;컴포넌트별 역할&lt;/h2&gt;&#xA;&lt;h3 id=&#34;postgresql-중심-상태-저장소&#34;&gt;PostgreSQL (중심 상태 저장소)&lt;/h3&gt;&#xA;&lt;p&gt;Supabase에서 Postgres는 단순 DB가 아니라 “권한의 최종 집행자”다.&lt;/p&gt;</description>
     </item>
   </channel>
 </rss>

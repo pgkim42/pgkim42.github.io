@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="ko-kr">
+  <head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Supabase Self-hosting 구조 분석 | noname log</title>
+    <link rel="stylesheet" href="/css/style.css" />
+    <link rel="stylesheet" href="/css/fonts.css" />
+    
+  </head>
+
+  <body>
+    <nav>
+    <ul class="menu">
+      
+    </ul>
+    <hr/>
+    </nav>
+
+<div class="article-meta">
+<h1><span class="title">Supabase Self-hosting 구조 분석</span></h1>
+
+<h2 class="date">2026/01/18</h2>
+</div>
+
+<main>
+<h2 id="배경">배경</h2>
+<p>“백엔드 프레임워크 없이도 Supabase만으로 어디까지 가능한가?”가 궁금해서 Self-hosting(Docker Compose) 환경을 직접 올려봤다.
+인증, REST API, 실시간 구독 같은 백엔드의 전형적인 기능이 <strong>Postgres + 몇 개의 마이크로서비스 조합</strong>으로 어떻게 성립하는지 구조를 중심으로 정리한다.</p>
+<p>본 글은 <strong>Self-hosting with Docker 구성</strong>을 기준으로 작성했다(로컬/서버에 Docker Compose로 올리는 형태).</p>
+<hr>
+<h2 id="한-장으로-보는-아키텍처">한 장으로 보는 아키텍처</h2>
+<p>Self-hosting 구성을 보면 역할이 비교적 명확하다.</p>
+<ul>
+<li><strong>API Gateway (Kong)</strong>: 모든 요청의 진입점</li>
+<li><strong>Data API (PostgREST)</strong>: Postgres를 REST API로 노출</li>
+<li><strong>Auth (GoTrue)</strong>: 회원/세션/JWT 발급</li>
+<li><strong>Realtime</strong>: WebSocket 기반 실시간 기능(변경 구독 + Broadcast/Presence)</li>
+<li><strong>Storage</strong>: 파일 업로드/다운로드 API + 권한/메타데이터는 Postgres</li>
+<li><strong>PostgreSQL</strong>: 시스템의 상태(state) 대부분을 보관하고, RLS로 권한을 최종 집행</li>
+<li><strong>Connection Pooler (Supavisor)</strong>: Self-host 스택에서 기본 제공되는 풀러(외부 연결/확장성 측면)</li>
+</ul>
+<hr>
+<h2 id="컴포넌트별-역할">컴포넌트별 역할</h2>
+<h3 id="postgresql-중심-상태-저장소">PostgreSQL (중심 상태 저장소)</h3>
+<p>Supabase에서 Postgres는 단순 DB가 아니라 “권한의 최종 집행자”다.</p>
+<ul>
+<li>애플리케이션 데이터(테이블/뷰/함수)</li>
+<li>Auth 관련 테이블(<code>auth</code> 스키마)</li>
+<li>Storage 메타데이터/권한</li>
+<li>Realtime에서 사용하는 DB 변경 스트림 기반 구성</li>
+<li>그리고 무엇보다 <strong>RLS(Row Level Security) 정책</strong>을 통한 데이터 접근 제어</li>
+</ul>
+<hr>
+<h3 id="kong-api-gateway">Kong (API Gateway)</h3>
+<p>Kong은 “문지기” 역할이다.</p>
+<ul>
+<li>외부에서 들어오는 요청을 <strong>단일 엔드포인트</strong>로 받고</li>
+<li>REST/Auth/Storage/Realtime로 라우팅한다.</li>
+<li>운영 관점에서는 CORS, 라우팅, 접근 제어 같은 게이트웨이 정책을 걸기 적합한 위치다.</li>
+</ul>
+<p>Self-hosting 기본 구성에서는 아래처럼 하나의 게이트웨이 주소에서 서비스별 엔드포인트가 갈라진다.</p>
+<ul>
+<li>REST: <code>/rest/v1/</code></li>
+<li>Auth: <code>/auth/v1/</code></li>
+<li>Storage: <code>/storage/v1/</code></li>
+<li>Realtime: <code>/realtime/v1/</code></li>
+</ul>
+<hr>
+<h3 id="postgrest-data-api">PostgREST (Data API)</h3>
+<p>PostgREST는 “DB를 REST API로 바꿔주는 웹서버”다.</p>
+<ul>
+<li>(기본적으로) 노출된 스키마의 테이블/뷰/함수를 기반으로 엔드포인트를 만든다.</li>
+<li>클라이언트는 <strong>쿼리 파라미터</strong>로 필터/정렬/페이지네이션을 표현한다.</li>
+<li>중요한 포인트는 “인증 후 <strong>DB 권한 모델로 안전하게 연결</strong>된다”는 점이다.</li>
+</ul>
+<blockquote>
+<p>Supabase에서 Data API는 결국 “PostgREST + Postgres(RLS/GRANT)” 조합으로 이해하는 게 가장 직관적이었다.</p>
+</blockquote>
+<hr>
+<h3 id="gotrue-auth">GoTrue (Auth)</h3>
+<p>GoTrue는 Supabase Auth의 핵심 API다.</p>
+<ul>
+<li>회원가입/로그인/세션 관리</li>
+<li>JWT 발급/갱신</li>
+<li>사용자 관련 데이터는 Postgres의 <code>auth</code> 스키마에 저장된다.</li>
+</ul>
+<p>여기서 중요한 주의점:</p>
+<ul>
+<li><code>auth</code> 스키마는 <strong>보안상 자동 생성 API에 기본 노출되지 않는다.</strong></li>
+<li>유저 프로필을 API로 제공하려면 보통 <code>public.profiles</code> 같은 테이블을 만들고, <code>auth.users</code>를 참조하거나 트리거로 동기화한다.</li>
+<li>노출되는 스키마(보통 <code>public</code>)에서는 RLS를 켜고 정책을 반드시 작성해야 한다.</li>
+</ul>
+<hr>
+<h3 id="realtime-postgres-changes--broadcast--presence">Realtime (Postgres Changes + Broadcast + Presence)</h3>
+<p>Realtime은 “DB 변경 구독”만 있는 게 아니라 기능이 3축이다.</p>
+<ol>
+<li>
+<p><strong>Postgres Changes (CDC)</strong>
+테이블 변경을 구독해 실시간으로 받는 기능. 알림/피드/대시보드에 유용하다.</p>
+</li>
+<li>
+<p><strong>Broadcast</strong>
+DB 변경과 무관하게, 같은 채널에 붙은 클라이언트 간 <strong>저지연 메시지 전송</strong>에 쓸 수 있다. 예: 커서 공유, “타이핑 중…” 표시 등.</p>
+</li>
+<li>
+<p><strong>Presence</strong>
+접속자 상태를 공유한다. 예: “현재 3명이 보고 있음”, 특정 유저 온라인 여부 등.</p>
+</li>
+</ol>
+<p>즉, Realtime은 “DB 기반 변경 스트림”과 “WebSocket 기반 실시간 협업 기능”을 함께 제공하는 구조다.</p>
+<hr>
+<h3 id="storage-api">Storage API</h3>
+<p>Storage는 S3 호환 인터페이스 성격을 가지며, 실 파일은 스토리지에 두고 “권한/메타데이터는 Postgres가 관리”하는 형태로 이해하면 편했다.</p>
+<hr>
+<h2 id="postgrest-동작-원리-실무-관점-핵심만">PostgREST 동작 원리 (실무 관점 핵심만)</h2>
+<h3 id="스키마-기반-엔드포인트">스키마 기반 엔드포인트</h3>
+<p>예를 들어 아래 테이블을 <code>public</code> 스키마에 만들면(그리고 노출 스키마 설정/권한/RLS가 갖춰져 있으면) API로 접근 가능해진다.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sql" data-lang="sql"><span style="display:flex;"><span><span style="color:#66d9ef">create</span> <span style="color:#66d9ef">table</span> <span style="color:#66d9ef">public</span>.posts (
+</span></span><span style="display:flex;"><span>  id bigserial <span style="color:#66d9ef">primary</span> <span style="color:#66d9ef">key</span>,
+</span></span><span style="display:flex;"><span>  title text <span style="color:#66d9ef">not</span> <span style="color:#66d9ef">null</span>,
+</span></span><span style="display:flex;"><span>  content text,
+</span></span><span style="display:flex;"><span>  user_id uuid <span style="color:#66d9ef">not</span> <span style="color:#66d9ef">null</span> <span style="color:#66d9ef">references</span> auth.users(id),
+</span></span><span style="display:flex;"><span>  created_at timestamptz <span style="color:#66d9ef">not</span> <span style="color:#66d9ef">null</span> <span style="color:#66d9ef">default</span> now()
+</span></span><span style="display:flex;"><span>);
+</span></span></code></pre></div><p>대략적으로 다음 형태의 호출이 가능해진다.</p>
+<ul>
+<li><code>GET /posts</code> (목록)</li>
+<li><code>GET /posts?id=eq.1</code> (필터)</li>
+<li><code>POST /posts</code> (생성)</li>
+<li><code>PATCH /posts?id=eq.1</code> (수정)</li>
+<li><code>DELETE /posts?id=eq.1</code> (삭제)</li>
+</ul>
+<hr>
+<h3 id="쿼리-파라미터--sql-조건">쿼리 파라미터 → SQL 조건</h3>
+<p>필터링은 대략 이런 감각이다.</p>
+<pre tabindex="0"><code>GET /posts?user_id=eq.&lt;uuid&gt;&amp;created_at=gte.2024-01-01
+</code></pre><p>이 요청은 내부적으로 <code>WHERE user_id = ... AND created_at &gt;= ...</code> 같은 조건으로 변환되어 실행된다.
+(타입은 컬럼 정의를 기준으로 캐스팅/검증된다고 이해하면 된다.)</p>
+<hr>
+<h3 id="rls-적용-흐름-핵심">RLS 적용 흐름 (핵심)</h3>
+<p>Supabase에서 “백엔드 없이도 안전한” 느낌이 나오는 이유는 RLS 때문이다.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sql" data-lang="sql"><span style="display:flex;"><span><span style="color:#66d9ef">alter</span> <span style="color:#66d9ef">table</span> <span style="color:#66d9ef">public</span>.posts enable <span style="color:#66d9ef">row</span> <span style="color:#66d9ef">level</span> <span style="color:#66d9ef">security</span>;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">create</span> policy <span style="color:#e6db74">&#34;read own posts&#34;</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">on</span> <span style="color:#66d9ef">public</span>.posts <span style="color:#66d9ef">for</span> <span style="color:#66d9ef">select</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">using</span> (auth.uid() <span style="color:#f92672">=</span> user_id);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">create</span> policy <span style="color:#e6db74">&#34;insert own posts&#34;</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">on</span> <span style="color:#66d9ef">public</span>.posts <span style="color:#66d9ef">for</span> <span style="color:#66d9ef">insert</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">with</span> <span style="color:#66d9ef">check</span> (auth.uid() <span style="color:#f92672">=</span> user_id);
+</span></span></code></pre></div><p>요청 흐름을 내가 이해한 방식은 이렇다.</p>
+<ol>
+<li>클라이언트가 JWT를 포함해 요청한다.</li>
+<li>PostgREST가 JWT를 검증하고, 요청 처리 동안 사용할 DB role/클레임을 설정한다.</li>
+<li>DB는 해당 role과 <code>auth.uid()</code>를 기준으로 RLS 정책을 적용해 결과를 반환한다.</li>
+</ol>
+<hr>
+<h2 id="n1-주의사항-정정--현실적인-경고">“N+1” 주의사항 (정정 + 현실적인 경고)</h2>
+<p>처음엔 아래처럼 관계 데이터를 같이 받는 요청을 보고 “유저 수만큼 쿼리 도는 N+1인가?”를 의심했다.</p>
+<pre tabindex="0"><code>GET /users?select=*,posts(*)
+</code></pre><p>하지만 이건 PostgREST의 <strong>resource embedding(관계 리소스 임베딩)</strong> 기능에 해당하고, 보통은 “여러 번 API 호출을 줄이기 위해 한 번에 묶어주는” 방향으로 소개된다.</p>
+<p>다만 주의할 점은 여전히 있다.</p>
+<ul>
+<li>
+<p>임베딩은 편하지만 결과 JSON이 커지고, 조인/집계가 무거워질 수 있다.</p>
+</li>
+<li>
+<p>그래서 실무적으로는</p>
+<ul>
+<li>필요한 칼럼만 <code>select=</code>로 제한</li>
+<li><code>limit</code>, <code>order</code>를 적극 사용</li>
+<li>인덱스를 필터/조인 키 기준으로 설계</li>
+<li>정말 복잡하면 View(또는 Materialized View)로 안정화
+같은 대응이 필요하다.</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h2 id="성능-커넥션-풀링과-연결-수-관리">성능: 커넥션 풀링과 연결 수 관리</h2>
+<h3 id="요청마다-연결-생성이-아니라-요청마다-커넥션을-빌려-씀에-가깝다">“요청마다 연결 생성”이 아니라 “요청마다 커넥션을 빌려 씀”에 가깝다</h3>
+<p>PostgREST는 동시 요청이 늘어나면 DB 연결 수가 병목이 될 수 있다.
+그래서 핵심은 “연결을 매번 새로 만든다”가 아니라, <strong>풀/DB max connections/다른 서비스(Auth 등)까지 포함해서 연결 예산을 어떻게 나누느냐</strong>다.</p>
+<h3 id="supavisor-vs-pgbouncer">Supavisor vs PgBouncer</h3>
+<ul>
+<li><strong>Supavisor</strong>: Self-hosting(Docker) 스택에서 기본 제공되는 풀러다. 세션/트랜잭션 형태의 연결을 분리해서 제공한다.</li>
+<li><strong>PgBouncer</strong>: 여전히 널리 쓰이는 옵션이고, 특히 단순한 트랜잭션 풀링에는 강점이 있다.</li>
+</ul>
+<p>Self-hosting을 깊게 파고들면 “최근 Supabase는 Supavisor를 기본 풀러로 제공/확장하는 흐름” 정도는 언급할 만하다.</p>
+<hr>
+<h2 id="보안-스키마-노출과-rls는-세트로-본다">보안: 스키마 노출과 RLS는 세트로 본다</h2>
+<p>내가 가장 중요하다고 느낀 포인트는 아래 두 문장이다.</p>
+<ul>
+<li><strong>노출된 스키마(기본은 public)</strong> 에 있는 테이블/뷰/함수는 Data API로 접근 가능해진다.</li>
+<li>따라서 노출 스키마에서는 <strong>RLS를 항상 켜고 정책을 작성해야 한다.</strong></li>
+</ul>
+<p>그리고 Auth 쪽은 초심자가 헷갈리기 쉬운데:</p>
+<ul>
+<li><code>auth.users</code>는 <code>auth</code> 스키마에 있고, <code>auth</code> 스키마는 기본적으로 자동 API에 노출되지 않는다.</li>
+<li>유저 프로필을 API로 노출하려면 public 쪽에 별도 테이블을 만들고 연결하는 패턴이 권장된다.</li>
+</ul>
+<hr>
+<h2 id="결론-백엔드가-없어도-되는-이유와-한계">결론: “백엔드가 없어도 되는 이유”와 “한계”</h2>
+<h3 id="왜-가능한가">왜 가능한가?</h3>
+<ul>
+<li>Postgres가 데이터 + 권한(RLS) + 로직(뷰/함수)까지 담당</li>
+<li>PostgREST가 스키마 기반으로 Data API 제공</li>
+<li>GoTrue가 인증/세션 제공</li>
+<li>Realtime이 변경 구독 + Broadcast/Presence 제공</li>
+<li>Kong이 단일 진입점(게이트웨이) 역할</li>
+<li>(Self-host 기준) Supavisor가 연결 관리를 보조</li>
+</ul>
+<h3 id="언제-한계를-느끼나">언제 한계를 느끼나?</h3>
+<ul>
+<li>복잡한 비즈니스 로직이 DB 함수/트리거로만 감당이 안 될 때</li>
+<li>외부 API 연동/워크플로우/사가 같은 애플리케이션 레벨 오케스트레이션이 필요할 때</li>
+<li>성능 튜닝 포인트가 DB 쪽(인덱스/쿼리/정책/풀링)으로 강하게 몰릴 때</li>
+</ul>
+<p>그래도 CRUD 중심의 제품/프로토타입에서는 “백엔드 프레임워크 없이도 서비스 형태가 갖춰진다”는 점이 확실히 인상적이었다.</p>
+
+</main>
+
+  <footer>
+  
+<div style="text-align: center; margin-top: 20px;">
+    <a href="https://myhits.vercel.app">
+        <img src="https://myhits.vercel.app/api/hit/https%3A%2F%2Fpgkim42.github.io?color=79c83d&label=visitors&size=small" alt="Hits"/>
+    </a>
+</div>
+
+  
+  </footer>
+  </body>
+</html>
+
