@@ -1,134 +1,704 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="ko" data-theme="dark">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta id="meta-theme-color" name="theme-color" content="#060708" />
+    <script>
+      (function () {
+        var key = "pgkim42-theme";
+        var stored = localStorage.getItem(key);
+        var theme =
+          stored ||
+          (window.matchMedia("(prefers-color-scheme: light)").matches
+            ? "light"
+            : "dark");
+        document.documentElement.setAttribute("data-theme", theme);
+        document.documentElement.style.colorScheme = theme;
+        var meta = document.getElementById("meta-theme-color");
+        if (meta) {
+          meta.content = theme === "light" ? "#eeeae3" : "#060708";
+        }
+      })();
+    </script>
     <title>홍플레이스 · 가짜 랜딩</title>
     <meta
       name="description"
       content="플레이스홀더용 개인 랜딩 페이지입니다. 실제 정보는 아닙니다."
     />
-    <meta property="og:title" content="홍플레이스" />
-    <meta
-      property="og:description"
-      content="가짜 소개, 가짜 프로젝트, 가짜 연락처 — 디자인 확인용."
-    />
-    <meta property="og:url" content="https://pgkim42.github.io/" />
-    <meta property="og:type" content="website" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
       href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="/css/style.css" />
+    <link rel="stylesheet" href="/css/style.css?v=13" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
   </head>
   <body>
     <a class="skip-link" href="#main">본문으로 건너뛰기</a>
-    <header class="site-header">
-      <a class="logo" href="/">placeholder.dev</a>
-      <nav aria-label="주요">
-        <ul>
-          <li><a href="#about">소개</a></li>
-          <li><a href="#projects">프로젝트</a></li>
-          <li><a href="#contact">연락</a></li>
-        </ul>
-      </nav>
-    </header>
 
-    <main id="main">
-      <section class="hero">
-        <p class="eyebrow">Fake · Demo · WIP</p>
-        <h1>홍플레이스</h1>
-        <p class="lead">
-          이 페이지의 이름, 경력, 프로젝트, 링크는 전부
-          <strong>임시 더미 텍스트</strong>입니다. 나중에 진짜 내용으로
-          바꿀 예정이에요.
-        </p>
-        <div class="hero-actions">
-          <a class="btn btn-primary" href="#contact">가짜 연락처</a>
-          <a class="btn btn-ghost" href="#projects">더미 프로젝트</a>
-        </div>
-      </section>
+    <div class="site-shell" id="site-shell">
+      <div class="page-grid" aria-hidden="true"></div>
 
-      <section id="about" class="panel">
-        <h2>소개</h2>
-        <p>
-          서울 어딘가에서 가상의 SaaS를 만든다고 주장하는 개발자입니다. 커피
-          대신 에너지 드링크, 슬랙 대신 상상 속 팀 채팅을 씁니다. 이 문단도
-          placeholder입니다.
+      <div class="site-layout">
+        <aside class="site-rail" aria-label="프로필">
+          <div class="site-rail-inner" data-header>
+            <div class="site-rail-head">
+              <a class="site-rail-logo" href="/">placeholder.dev</a>
+              <p class="site-rail-name">홍플레이스</p>
+              <p class="site-rail-role">풀스택 개발자 — 더미 한 줄 역할</p>
+              <p class="site-rail-tagline">
+                가상의 SaaS와 subgrid work index로 채우는 더미 랜딩.
+              </p>
+            </div>
+
+            <nav class="site-rail-nav" aria-label="주요">
+              <ul>
+                <li>
+                  <a class="nav-link" data-nav href="#about">
+                    <span class="nav-link-num" aria-hidden="true">01.</span>
+                    <span class="nav-link-text">소개</span>
+                  </a>
+                </li>
+                <li>
+                  <a class="nav-link" data-nav href="#experience">
+                    <span class="nav-link-num" aria-hidden="true">02.</span>
+                    <span class="nav-link-text">경력</span>
+                  </a>
+                </li>
+                <li>
+                  <a class="nav-link" data-nav href="#projects">
+                    <span class="nav-link-num" aria-hidden="true">03.</span>
+                    <span class="nav-link-text">프로젝트</span>
+                  </a>
+                </li>
+                <li>
+                  <a class="nav-link" data-nav href="#contact">
+                    <span class="nav-link-num" aria-hidden="true">04.</span>
+                    <span class="nav-link-text">연락</span>
+                  </a>
+                </li>
+              </ul>
+            </nav>
+
+            <button
+              type="button"
+              class="theme-toggle surface-control site-rail-theme"
+              id="theme-toggle"
+              aria-label="라이트 모드로 전환"
+            >
+              <span class="theme-toggle-icon" aria-hidden="true"></span>
+              <span class="theme-toggle-label" id="theme-toggle-label"
+                >Light</span
+              >
+            </button>
+
+            <dl class="site-rail-stats" aria-label="요약">
+              <div>
+                <dt>Status</dt>
+                <dd>Open to fake offers</dd>
+              </div>
+              <div>
+                <dt>Based in</dt>
+                <dd>Seoul (not really)</dd>
+              </div>
+              <div>
+                <dt>Focus</dt>
+                <dd>Product-shaped code</dd>
+              </div>
+            </dl>
+
+            <div class="site-rail-foot">
+              <ul class="site-rail-social" aria-label="외부 링크">
+                <li>
+                  <a href="#" aria-label="GitHub (더미)">GitHub</a>
+                </li>
+                <li>
+                  <a href="#" aria-label="LinkedIn (더미)">LinkedIn</a>
+                </li>
+              </ul>
+              <p class="site-rail-copy">
+                © <span id="year-rail"></span> 홍플레이스
+              </p>
+            </div>
+          </div>
+        </aside>
+
+        <div class="site-content">
+          <main id="main">
+            <section class="hero hero--rail" aria-labelledby="intro-heading">
+              <p class="eyebrow reveal" data-reveal>Fake · Demo · WIP</p>
+              <h1 id="intro-heading" class="visually-hidden">홍플레이스</h1>
+              <p class="lead reveal" data-reveal>
+                OKLCH 토큰 · subgrid work index · inset surfaces · scroll-driven
+                motion · focus-within.
+              </p>
+              <div class="hero-actions reveal" data-reveal>
+                <a class="btn btn-primary" href="#projects">프로젝트 인덱스</a>
+                <a class="btn btn-ghost surface-control" href="#contact">연락</a>
+              </div>
+            </section>
+
+      <section id="about" class="panel surface reveal" data-reveal>
+        <p class="panel-label">About</p>
+        <h2 class="text-balance">소개</h2>
+        <p class="panel-body text-pretty">
+          서울 어딘가에서 가상의 SaaS를 만든다고 주장하는 개발er입니다. work
+          row는 subgrid로 열 정렬, hover/focus는 같은 surface-hover 토큰.
         </p>
         <ul class="tags" aria-label="주요 기술">
-          <li>언어 A</li>
-          <li>프레임워크 B</li>
-          <li>데이터베이스 C</li>
-          <li>클라우드 D</li>
-          <li>도구 E</li>
-          <li>???</li>
+          <li>typescript</li>
+          <li>spring</li>
+          <li>react</li>
+          <li>postgres</li>
+          <li>agents</li>
         </ul>
       </section>
 
-      <section id="projects" class="panel">
-        <div class="section-head">
-          <h2>프로젝트</h2>
-          <p>아래 카드는 전부 가짜 이름과 가짜 설명입니다.</p>
+      <section id="experience" class="panel surface reveal" data-reveal>
+        <p class="panel-label">Experience</p>
+        <h2 class="text-balance">경력</h2>
+        <ol class="experience-list">
+          <li class="experience-item">
+            <span class="experience-range">2024 — Present</span>
+            <div class="experience-body">
+              <h3 class="experience-title">
+                Senior Fake Engineer ·
+                <span class="experience-org">Placeholder SaaS Co.</span>
+              </h3>
+              <p class="experience-summary text-pretty">
+                가상의 B2B 대시보드와 agent-shaped API를 “거의 출시” 상태로
+                유지. 스프린트마다 OKR만 갱신합니다.
+              </p>
+              <ul class="experience-stack" aria-label="사용 기술">
+                <li>TypeScript</li>
+                <li>React</li>
+                <li>Postgres</li>
+                <li>Spring</li>
+              </ul>
+            </div>
+          </li>
+          <li class="experience-item">
+            <span class="experience-range">2022 — 2024</span>
+            <div class="experience-body">
+              <h3 class="experience-title">
+                Full-stack Meme Lead ·
+                <span class="experience-org">Cloud Pizza Studio</span>
+              </h3>
+              <p class="experience-summary text-pretty">
+                Helm chart와 README 아키텍처 에세이로 피자 Pod autoscaling
+                스토리텔링. 프로덕션 트래픽 0.
+              </p>
+              <ul class="experience-stack" aria-label="사용 기술">
+                <li>Kubernetes</li>
+                <li>Next.js</li>
+                <li>Grafana (screenshot 없음)</li>
+              </ul>
+            </div>
+          </li>
+          <li class="experience-item">
+            <span class="experience-range">2020 — 2022</span>
+            <div class="experience-body">
+              <h3 class="experience-title">
+                Frontend Pretender ·
+                <span class="experience-org">404 Social Ltd.</span>
+              </h3>
+              <p class="experience-summary text-pretty">
+                친구 API 404, empty state 200종. TypeScript로
+                <code>friends: []</code> 타입 안정성 확보.
+              </p>
+              <ul class="experience-stack" aria-label="사용 기술">
+                <li>Next.js</li>
+                <li>TypeScript</li>
+                <li>Stub routes</li>
+              </ul>
+            </div>
+          </li>
+        </ol>
+      </section>
+
+      <section id="projects" class="panel panel--flush surface reveal" data-reveal>
+        <div class="section-head section-head--row">
+          <div>
+            <p class="panel-label">Work</p>
+            <h2 class="text-balance">프로젝트</h2>
+          </div>
+          <p class="section-desc">→ 로 상세</p>
         </div>
-        <ul class="project-grid">
-          <li>
-            <article class="project-card">
-              <h3><a href="#">todo-infinity</a></h3>
-              <p>끝나지 않는 할 일 앱. MVP는 2019년부터 “곧” 출시 예정.</p>
-            </article>
+        <ol class="work-list">
+          <li class="work-row">
+            <div class="work-item">
+              <span class="work-num">01</span>
+              <span class="work-title">todo-infinity</span>
+              <span class="work-desc">끝나지 않는 할 일 앱 · MVP “곧” since 2019</span>
+              <span class="work-tag">WIP</span>
+              <button
+                type="button"
+                class="work-open"
+                data-work="01"
+                aria-label="todo-infinity 프로젝트 열기"
+              >
+                →
+              </button>
+            </div>
           </li>
-          <li>
-            <article class="project-card">
-              <h3><a href="#">cloud-pizza</a></h3>
-              <p>피자 주문을 Kubernetes Pod로 스케일링하는 밈 프로젝트.</p>
-            </article>
+          <li class="work-row">
+            <div class="work-item">
+              <span class="work-num">02</span>
+              <span class="work-title">cloud-pizza</span>
+              <span class="work-desc">피자 주문을 Pod로 스케일링</span>
+              <span class="work-tag">2025</span>
+              <button
+                type="button"
+                class="work-open"
+                data-work="02"
+                aria-label="cloud-pizza 프로젝트 열기"
+              >
+                →
+              </button>
+            </div>
           </li>
-          <li>
-            <article class="project-card">
-              <h3><a href="#">lint-or-die</a></h3>
-              <p>린트 경고 하나당 가상의 커피 한 잔을 마시게 하는 CLI.</p>
-            </article>
+          <li class="work-row">
+            <div class="work-item">
+              <span class="work-num">03</span>
+              <span class="work-title">lint-or-die</span>
+              <span class="work-desc">린트 1개 = 가상의 커피 1잔</span>
+              <span class="work-tag">CLI</span>
+              <button
+                type="button"
+                class="work-open"
+                data-work="03"
+                aria-label="lint-or-die 프로젝트 열기"
+              >
+                →
+              </button>
+            </div>
           </li>
-          <li>
-            <article class="project-card">
-              <h3><a href="#">404-social</a></h3>
-              <p>친구 요청은 항상 404. 팔로워는 localhost만 허용.</p>
-            </article>
+          <li class="work-row">
+            <div class="work-item">
+              <span class="work-num">04</span>
+              <span class="work-title">404-social</span>
+              <span class="work-desc">친구 요청 always 404</span>
+              <span class="work-tag">Meme</span>
+              <button
+                type="button"
+                class="work-open"
+                data-work="04"
+                aria-label="404-social 프로젝트 열기"
+              >
+                →
+              </button>
+            </div>
           </li>
-          <li>
-            <article class="project-card">
-              <h3><a href="#">gpt-but-worse</a></h3>
-              <p>응답 품질을 일부러 낮춘 챗봇. 데모용.</p>
-            </article>
+          <li class="work-row">
+            <div class="work-item">
+              <span class="work-num">05</span>
+              <span class="work-title">gpt-but-worse</span>
+              <span class="work-desc">일부러 품질 낮춘 챗봇</span>
+              <span class="work-tag">Demo</span>
+              <button
+                type="button"
+                class="work-open"
+                data-work="05"
+                aria-label="gpt-but-worse 프로젝트 열기"
+              >
+                →
+              </button>
+            </div>
           </li>
-          <li>
-            <article class="project-card">
-              <h3><a href="#">readme-only</a></h3>
-              <p>코드는 없고 README만 400줄인 전설의 저장소.</p>
-            </article>
+          <li class="work-row">
+            <div class="work-item">
+              <span class="work-num">06</span>
+              <span class="work-title">readme-only</span>
+              <span class="work-desc">코드 0 · README 400 lines</span>
+              <span class="work-tag">—</span>
+              <button
+                type="button"
+                class="work-open"
+                data-work="06"
+                aria-label="readme-only 프로젝트 열기"
+              >
+                →
+              </button>
+            </div>
           </li>
-        </ul>
+        </ol>
       </section>
 
-      <section id="contact" class="panel contact">
-        <h2>연락</h2>
-        <p>
-          이메일: <code>not-real@example.com</code><br />
-          실제 문의는 나중에 넣을 링크를 기다려 주세요.
+      <section id="contact" class="panel contact surface reveal" data-reveal>
+        <p class="panel-label">Contact</p>
+        <h2 class="text-balance">연락</h2>
+        <p class="contact-availability" role="status">
+          <span class="contact-status-dot" aria-hidden="true"></span>
+          <span
+            >채용·프리랜스 문의 환영합니다 — 더미 상태이며 실제 구인은
+            아닙니다.</span
+          >
         </p>
-        <a class="btn btn-primary" href="mailto:not-real@example.com"
-          >가짜 메일 보내기</a
-        >
+        <p class="panel-body">
+          <a class="inline-link" href="mailto:not-real@example.com"
+            >not-real@example.com</a
+          >
+        </p>
+        <a class="btn btn-primary" href="mailto:not-real@example.com">메일</a>
       </section>
-    </main>
+          </main>
 
-    <footer class="site-footer">
-      <p>© <span id="year"></span> 홍플레이스 (placeholder)</p>
-    </footer>
+          <footer class="site-footer reveal" data-reveal>
+            <p>© <span id="year"></span> 홍플레이스 · CSS max</p>
+          </footer>
+        </div>
+      </div>
+    </div>
+
+    <div
+      class="project-scrim"
+      id="project-scrim"
+      aria-hidden="true"
+      hidden
+    ></div>
+
+    <aside
+      class="project-drawer surface"
+      id="project-drawer"
+      aria-label="프로젝트 상세"
+      aria-hidden="true"
+      inert
+    >
+      <button
+        type="button"
+        class="project-drawer-close"
+        id="project-drawer-close"
+        aria-label="닫고 목록으로"
+      >
+        ← 목록
+      </button>
+      <div class="project-drawer-inner" id="project-drawer-inner"></div>
+    </aside>
+
+    <template id="work-tpl-01">
+      <article class="work-pane-content">
+        <p class="work-pane-kicker">01 · WIP</p>
+        <h3 class="work-pane-title">todo-infinity</h3>
+        <dl class="work-pane-meta">
+          <div>
+            <dt>Year</dt>
+            <dd>2019 — Present</dd>
+          </div>
+          <div>
+            <dt>Role</dt>
+            <dd>Solo product · UI</dd>
+          </div>
+          <div>
+            <dt>Stack</dt>
+            <dd>React · localStorage</dd>
+          </div>
+          <div>
+            <dt>Client</dt>
+            <dd>Self / side project</dd>
+          </div>
+        </dl>
+        <section class="work-pane-block">
+          <h4>Overview</h4>
+          <p>
+            할 일을 추가할수록 마감일만 미래로 밀리는 가짜 생산성 앱. “완료”
+            API는 항상 409. 사용자는 hope만 유지합니다.
+          </p>
+        </section>
+        <section class="work-pane-block">
+          <h4>What I did</h4>
+          <ul>
+            <li>React UI + optimistic UI that never resolves</li>
+            <li>localStorage sync without conflict resolution</li>
+            <li>Roadmap PDF 47p (내용 없음)</li>
+          </ul>
+        </section>
+        <nav class="work-pane-links" aria-label="프로젝트 링크">
+          <ul>
+            <li>
+              <a class="work-pane-link" href="#" aria-label="todo-infinity 데모 (더미)"
+                >Live <span aria-hidden="true">↗</span></a
+              >
+            </li>
+            <li>
+              <a class="work-pane-link" href="#" aria-label="todo-infinity GitHub (더미)"
+                >GitHub <span aria-hidden="true">↗</span></a
+              >
+            </li>
+            <li>
+              <a class="work-pane-link" href="#" aria-label="todo-infinity README (더미)"
+                >README <span aria-hidden="true">↗</span></a
+              >
+            </li>
+          </ul>
+        </nav>
+      </article>
+    </template>
+    <template id="work-tpl-02">
+      <article class="work-pane-content">
+        <p class="work-pane-kicker">02 · 2025</p>
+        <h3 class="work-pane-title">cloud-pizza</h3>
+        <dl class="work-pane-meta">
+          <div>
+            <dt>Year</dt>
+            <dd>2025</dd>
+          </div>
+          <div>
+            <dt>Role</dt>
+            <dd>DevOps storytelling</dd>
+          </div>
+          <div>
+            <dt>Stack</dt>
+            <dd>Helm · K8s · YAML</dd>
+          </div>
+          <div>
+            <dt>Client</dt>
+            <dd>Cloud Pizza Studio</dd>
+          </div>
+        </dl>
+        <section class="work-pane-block">
+          <h4>Overview</h4>
+          <p>
+            피자 주문 트래픽을 Kubernetes HPA로 스케일링한다는 설정만 있는
+            DevOps 밈 레포. Grafana 스크린샷은 없습니다.
+          </p>
+        </section>
+        <section class="work-pane-block">
+          <h4>What I did</h4>
+          <ul>
+            <li>Helm chart with cheese utilization metric</li>
+            <li>README architecture essay</li>
+            <li>Min replica 3 pepperoni pods</li>
+          </ul>
+        </section>
+        <nav class="work-pane-links" aria-label="프로젝트 링크">
+          <ul>
+            <li>
+              <a class="work-pane-link" href="#" aria-label="cloud-pizza Live (더미)"
+                >Live <span aria-hidden="true">↗</span></a
+              >
+            </li>
+            <li>
+              <a class="work-pane-link" href="#" aria-label="cloud-pizza GitHub (더미)"
+                >GitHub <span aria-hidden="true">↗</span></a
+              >
+            </li>
+          </ul>
+        </nav>
+      </article>
+    </template>
+    <template id="work-tpl-03">
+      <article class="work-pane-content">
+        <p class="work-pane-kicker">03 · CLI</p>
+        <h3 class="work-pane-title">lint-or-die</h3>
+        <dl class="work-pane-meta">
+          <div>
+            <dt>Year</dt>
+            <dd>2024</dd>
+          </div>
+          <div>
+            <dt>Role</dt>
+            <dd>CLI · DX</dd>
+          </div>
+          <div>
+            <dt>Stack</dt>
+            <dd>Node · ESLint API</dd>
+          </div>
+          <div>
+            <dt>Client</dt>
+            <dd>Open source</dd>
+          </div>
+        </dl>
+        <section class="work-pane-block">
+          <h4>Overview</h4>
+          <p>
+            ESLint warning마다 터미널에 ASCII 커피잔을 출력하는 pre-commit
+            도구. CI는 항상 green.
+          </p>
+        </section>
+        <section class="work-pane-block">
+          <h4>What I did</h4>
+          <ul>
+            <li>Node CLI + chalk</li>
+            <li>Git hook installer</li>
+            <li>Caffeine counter (hardcoded 999)</li>
+          </ul>
+        </section>
+        <nav class="work-pane-links" aria-label="프로젝트 링크">
+          <ul>
+            <li>
+              <a class="work-pane-link" href="#" aria-label="lint-or-die npm (더미)"
+                >npm <span aria-hidden="true">↗</span></a
+              >
+            </li>
+            <li>
+              <a class="work-pane-link" href="#" aria-label="lint-or-die GitHub (더미)"
+                >GitHub <span aria-hidden="true">↗</span></a
+              >
+            </li>
+          </ul>
+        </nav>
+      </article>
+    </template>
+    <template id="work-tpl-04">
+      <article class="work-pane-content">
+        <p class="work-pane-kicker">04 · Meme</p>
+        <h3 class="work-pane-title">404-social</h3>
+        <dl class="work-pane-meta">
+          <div>
+            <dt>Year</dt>
+            <dd>2023</dd>
+          </div>
+          <div>
+            <dt>Role</dt>
+            <dd>Frontend · stubs</dd>
+          </div>
+          <div>
+            <dt>Stack</dt>
+            <dd>Next.js · TypeScript</dd>
+          </div>
+          <div>
+            <dt>Client</dt>
+            <dd>404 Social Ltd.</dd>
+          </div>
+        </dl>
+        <section class="work-pane-block">
+          <h4>Overview</h4>
+          <p>
+            SNS UI 껍데기. 친구 요청·DM·타임라인 API는 전부 404 또는 빈
+            배열. 카피만 200종.
+          </p>
+        </section>
+        <section class="work-pane-block">
+          <h4>What I did</h4>
+          <ul>
+            <li>Next.js pages + stub routes</li>
+            <li>Empty state illustrations (placeholder gray box)</li>
+            <li>friends: [] typed in TypeScript</li>
+          </ul>
+        </section>
+        <nav class="work-pane-links" aria-label="프로젝트 링크">
+          <ul>
+            <li>
+              <a class="work-pane-link" href="#" aria-label="404-social Live (더미)"
+                >Live <span aria-hidden="true">↗</span></a
+              >
+            </li>
+            <li>
+              <a class="work-pane-link" href="#" aria-label="404-social Case study (더미)"
+                >Case study <span aria-hidden="true">↗</span></a
+              >
+            </li>
+          </ul>
+        </nav>
+      </article>
+    </template>
+    <template id="work-tpl-05">
+      <article class="work-pane-content">
+        <p class="work-pane-kicker">05 · Demo</p>
+        <h3 class="work-pane-title">gpt-but-worse</h3>
+        <dl class="work-pane-meta">
+          <div>
+            <dt>Year</dt>
+            <dd>2025</dd>
+          </div>
+          <div>
+            <dt>Role</dt>
+            <dd>Prompt · eval</dd>
+          </div>
+          <div>
+            <dt>Stack</dt>
+            <dd>LLM API · React</dd>
+          </div>
+          <div>
+            <dt>Client</dt>
+            <dd>Internal demo</dd>
+          </div>
+        </dl>
+        <section class="work-pane-block">
+          <h4>Overview</h4>
+          <p>
+            일부러 애매하게 답하는 챗봇 데모. eval 점수는 공개하지 않습니다
+            (embarrassing).
+          </p>
+        </section>
+        <section class="work-pane-block">
+          <h4>What I did</h4>
+          <ul>
+            <li>System prompt engineering (반대로)</li>
+            <li>Minimal chat UI</li>
+            <li>Offline eval notebook (private)</li>
+          </ul>
+        </section>
+        <nav class="work-pane-links" aria-label="프로젝트 링크">
+          <ul>
+            <li>
+              <a class="work-pane-link" href="#" aria-label="gpt-but-worse Demo (더미)"
+                >Demo <span aria-hidden="true">↗</span></a
+              >
+            </li>
+          </ul>
+        </nav>
+      </article>
+    </template>
+    <template id="work-tpl-06">
+      <article class="work-pane-content">
+        <p class="work-pane-kicker">06</p>
+        <h3 class="work-pane-title">readme-only</h3>
+        <dl class="work-pane-meta">
+          <div>
+            <dt>Year</dt>
+            <dd>2024</dd>
+          </div>
+          <div>
+            <dt>Role</dt>
+            <dd>Documentation lead</dd>
+          </div>
+          <div>
+            <dt>Stack</dt>
+            <dd>Markdown · Mermaid</dd>
+          </div>
+          <div>
+            <dt>Client</dt>
+            <dd>Vision-only OSS</dd>
+          </div>
+        </dl>
+        <section class="work-pane-block">
+          <h4>Overview</h4>
+          <p>
+            src/는 .gitkeep 하나. Mermaid 다이어그램 12개, 구현은 Phase 2
+            예정. 스타 = README 길이.
+          </p>
+        </section>
+        <section class="work-pane-block">
+          <h4>What I did</h4>
+          <ul>
+            <li>400-line README with TOC</li>
+            <li>Architecture decision records (template only)</li>
+            <li>Zero LOC, maximum vision</li>
+          </ul>
+        </section>
+        <nav class="work-pane-links" aria-label="프로젝트 링크">
+          <ul>
+            <li>
+              <a class="work-pane-link" href="#" aria-label="readme-only GitHub (더미)"
+                >GitHub <span aria-hidden="true">↗</span></a
+              >
+            </li>
+            <li>
+              <a class="work-pane-link" href="#" aria-label="readme-only README (더미)"
+                >README <span aria-hidden="true">↗</span></a
+              >
+            </li>
+          </ul>
+        </nav>
+      </article>
+    </template>
+
+    <script src="/js/project-push.js" defer></script>
+    <script src="/js/theme.js" defer></script>
+    <script src="/js/motion.js?v=4" defer></script>
     <script src="/js/main.js" defer></script>
   </body>
 </html>

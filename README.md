@@ -1,5 +1,5 @@
 # pgkim42.github.io
 
-Static landing placeholder for [pgkim42.github.io](https://pgkim42.github.io/). Copy is dummy text until real content is added.
+Dark card-style static landing (placeholder copy). [pgkim42.github.io](https://pgkim42.github.io/)
 
 Push to `main` deploys via GitHub Actions.
