@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>홍플레이스 · 가짜 랜딩</title>
+    <meta
+      name="description"
+      content="플레이스홀더용 개인 랜딩 페이지입니다. 실제 정보는 아닙니다."
+    />
+    <meta property="og:title" content="홍플레이스" />
+    <meta
+      property="og:description"
+      content="가짜 소개, 가짜 프로젝트, 가짜 연락처 — 디자인 확인용."
+    />
+    <meta property="og:url" content="https://pgkim42.github.io/" />
+    <meta property="og:type" content="website" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/css/style.css" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  </head>
+  <body>
+    <a class="skip-link" href="#main">본문으로 건너뛰기</a>
+    <header class="site-header">
+      <a class="logo" href="/">placeholder.dev</a>
+      <nav aria-label="주요">
+        <ul>
+          <li><a href="#about">소개</a></li>
+          <li><a href="#projects">프로젝트</a></li>
+          <li><a href="#contact">연락</a></li>
+        </ul>
+      </nav>
+    </header>
+
+    <main id="main">
+      <section class="hero">
+        <p class="eyebrow">Fake · Demo · WIP</p>
+        <h1>홍플레이스</h1>
+        <p class="lead">
+          이 페이지의 이름, 경력, 프로젝트, 링크는 전부
+          <strong>임시 더미 텍스트</strong>입니다. 나중에 진짜 내용으로
+          바꿀 예정이에요.
+        </p>
+        <div class="hero-actions">
+          <a class="btn btn-primary" href="#contact">가짜 연락처</a>
+          <a class="btn btn-ghost" href="#projects">더미 프로젝트</a>
+        </div>
+      </section>
+
+      <section id="about" class="panel">
+        <h2>소개</h2>
+        <p>
+          서울 어딘가에서 가상의 SaaS를 만든다고 주장하는 개발자입니다. 커피
+          대신 에너지 드링크, 슬랙 대신 상상 속 팀 채팅을 씁니다. 이 문단도
+          placeholder입니다.
+        </p>
+        <ul class="tags" aria-label="주요 기술">
+          <li>언어 A</li>
+          <li>프레임워크 B</li>
+          <li>데이터베이스 C</li>
+          <li>클라우드 D</li>
+          <li>도구 E</li>
+          <li>???</li>
+        </ul>
+      </section>
+
+      <section id="projects" class="panel">
+        <div class="section-head">
+          <h2>프로젝트</h2>
+          <p>아래 카드는 전부 가짜 이름과 가짜 설명입니다.</p>
+        </div>
+        <ul class="project-grid">
+          <li>
+            <article class="project-card">
+              <h3><a href="#">todo-infinity</a></h3>
+              <p>끝나지 않는 할 일 앱. MVP는 2019년부터 “곧” 출시 예정.</p>
+            </article>
+          </li>
+          <li>
+            <article class="project-card">
+              <h3><a href="#">cloud-pizza</a></h3>
+              <p>피자 주문을 Kubernetes Pod로 스케일링하는 밈 프로젝트.</p>
+            </article>
+          </li>
+          <li>
+            <article class="project-card">
+              <h3><a href="#">lint-or-die</a></h3>
+              <p>린트 경고 하나당 가상의 커피 한 잔을 마시게 하는 CLI.</p>
+            </article>
+          </li>
+          <li>
+            <article class="project-card">
+              <h3><a href="#">404-social</a></h3>
+              <p>친구 요청은 항상 404. 팔로워는 localhost만 허용.</p>
+            </article>
+          </li>
+          <li>
+            <article class="project-card">
+              <h3><a href="#">gpt-but-worse</a></h3>
+              <p>응답 품질을 일부러 낮춘 챗봇. 데모용.</p>
+            </article>
+          </li>
+          <li>
+            <article class="project-card">
+              <h3><a href="#">readme-only</a></h3>
+              <p>코드는 없고 README만 400줄인 전설의 저장소.</p>
+            </article>
+          </li>
+        </ul>
+      </section>
+
+      <section id="contact" class="panel contact">
+        <h2>연락</h2>
+        <p>
+          이메일: <code>not-real@example.com</code><br />
+          실제 문의는 나중에 넣을 링크를 기다려 주세요.
+        </p>
+        <a class="btn btn-primary" href="mailto:not-real@example.com"
+          >가짜 메일 보내기</a
+        >
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <p>© <span id="year"></span> 홍플레이스 (placeholder)</p>
+    </footer>
+    <script src="/js/main.js" defer></script>
+  </body>
+</html>
